@@ -23,9 +23,21 @@ document.addEventListener('DOMContentLoaded', () => {
     View.openDrawer();
   }
 
+  function buildCategoryListHTML() {
+    const cats = Model.getContentCategories();
+    if (cats.length === 0) {
+      return '<p class="modal-cat-empty">No categories yet.</p>';
+    }
+    return cats.map(c => `
+      <div class="modal-cat-item">
+        <span class="modal-cat-name">${c.label}</span>
+        <button class="modal-cat-delete btn-icon btn-danger" data-action="delete-category" data-cat-id="${c.id}" title="Delete">✕</button>
+      </div>
+    `).join('');
+  }
+
   // ─── Ribbon ───────────────────────────────────────────────────────────────
   document.querySelector('.ribbon').addEventListener('click', e => {
-    // Delete client
     const delBtn = e.target.closest('[data-action="delete-client"]');
     if (delBtn) {
       e.stopPropagation();
@@ -54,7 +66,6 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    // Add client
     if (e.target.closest('[data-action="add-client"]')) {
       View.showModal({
         title: 'Add Client',
@@ -83,7 +94,6 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    // Switch client tab
     const tab = e.target.closest('.ribbon-tab');
     if (tab) {
       Model.setActiveClient(tab.dataset.slug || null);
@@ -100,7 +110,6 @@ document.addEventListener('DOMContentLoaded', () => {
       const projectId = addTaskBtn.dataset.projectId;
       const taskId    = Model.addTask(projectId);
       if (!taskId) return;
-      // Make sure the project is open
       if (!Model.isProjectOpen(projectId)) {
         Model.toggleProject(projectId);
         View.toggleProjectSection(projectId, true);
@@ -115,6 +124,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Delete Project
     const delProjectBtn = e.target.closest('[data-action="delete-project"]');
     if (delProjectBtn) {
+      e.stopPropagation();
       const projectId = delProjectBtn.dataset.projectId;
       const project   = Model.getProjects().find(p => p.id === projectId);
       const taskCount = Model.getFilteredTasks().filter(t => t.projectId === projectId).length;
@@ -132,6 +142,66 @@ document.addEventListener('DOMContentLoaded', () => {
           Model.deleteProject(projectId);
           refreshBoard();
           View.closeDrawer();
+        }
+      });
+      return;
+    }
+
+    // Close Project
+    const closeProjectBtn = e.target.closest('[data-action="close-project"]');
+    if (closeProjectBtn) {
+      e.stopPropagation();
+      const projectId = closeProjectBtn.dataset.projectId;
+      const project   = Model.getProjects().find(p => p.id === projectId);
+      if (!Model.canCloseProject(projectId)) {
+        const tasks      = Model.getFilteredTasks().filter(t => t.projectId === projectId);
+        const remaining  = tasks.filter(t => t.status !== 'published').length;
+        View.showModal({
+          title: 'Cannot Close Project',
+          bodyHTML: `
+            <p class="modal-message">
+              <strong>${project.name}</strong> cannot be closed yet.
+              <strong>${remaining} task${remaining !== 1 ? 's' : ''}</strong> still need${remaining === 1 ? 's' : ''} to be published.
+            </p>
+          `,
+          confirmLabel: 'OK',
+          danger: false,
+          onConfirm: () => {}
+        });
+      } else {
+        View.showModal({
+          title: 'Close Project',
+          bodyHTML: `
+            <p class="modal-message">
+              Close <strong>${project.name}</strong>? All tasks are published.
+              No new tasks can be added once closed.
+            </p>
+          `,
+          confirmLabel: 'Close Project',
+          danger: false,
+          onConfirm: () => {
+            Model.closeProject(projectId);
+            refreshBoard();
+          }
+        });
+      }
+      return;
+    }
+
+    // Reopen Project
+    const reopenProjectBtn = e.target.closest('[data-action="reopen-project"]');
+    if (reopenProjectBtn) {
+      e.stopPropagation();
+      const projectId = reopenProjectBtn.dataset.projectId;
+      const project   = Model.getProjects().find(p => p.id === projectId);
+      View.showModal({
+        title: 'Reopen Project',
+        bodyHTML: `<p class="modal-message">Reopen <strong>${project.name}</strong>? New tasks can be added again.</p>`,
+        confirmLabel: 'Reopen',
+        danger: false,
+        onConfirm: () => {
+          Model.reopenProject(projectId);
+          refreshBoard();
         }
       });
       return;
@@ -226,13 +296,94 @@ document.addEventListener('DOMContentLoaded', () => {
           refreshBoard();
         }
       });
+      return;
+    }
+
+    // Add link attachment
+    const addLinkBtn = e.target.closest('[data-action="add-link"]');
+    if (addLinkBtn) {
+      const taskId   = addLinkBtn.dataset.taskId;
+      const nameInput = document.getElementById('att-name-input');
+      const urlInput  = document.getElementById('att-url-input');
+      const url  = urlInput ? urlInput.value.trim() : '';
+      const name = nameInput ? nameInput.value.trim() : '';
+      if (!url) return;
+      Model.addAttachment(taskId, 'link', name || url, url);
+      if (nameInput) nameInput.value = '';
+      if (urlInput)  urlInput.value  = '';
+      View.renderAttachmentList(Model.getTaskById(taskId).attachments || []);
+      refreshBoard();
+      return;
+    }
+
+    // Remove attachment
+    const removeAttBtn = e.target.closest('[data-action="remove-attachment"]');
+    if (removeAttBtn) {
+      const attId  = removeAttBtn.dataset.attId;
+      const taskId = Model.getOpenTaskId();
+      if (!taskId) return;
+      Model.removeAttachment(taskId, attId);
+      View.renderAttachmentList(Model.getTaskById(taskId).attachments || []);
+      refreshBoard();
+      return;
+    }
+
+    // Manage categories
+    const manageCatBtn = e.target.closest('[data-action="manage-categories"]');
+    if (manageCatBtn) {
+      View.showModal({
+        title: 'Manage Categories',
+        bodyHTML: `
+          <div class="modal-category-list" id="modal-cat-list">
+            ${buildCategoryListHTML()}
+          </div>
+          <div class="modal-field" style="margin-top:16px; border-top:1px solid var(--border-default); padding-top:16px;">
+            <label class="modal-label">New Category Name</label>
+            <input class="modal-input" name="categoryName" type="text" placeholder="e.g. Podcast Clip" autocomplete="off">
+          </div>
+        `,
+        confirmLabel: 'Add Category',
+        danger: false,
+        onConfirm: ({ categoryName }) => {
+          if (categoryName && categoryName.trim()) {
+            Model.addContentCategory(categoryName.trim());
+          }
+          const openTaskId = Model.getOpenTaskId();
+          if (openTaskId) refreshDrawer(openTaskId);
+        }
+      });
+      return;
     }
   });
 
-  // ─── Drawer — change (selects) ────────────────────────────────────────────
+  // ─── Modal-wrap — inline category delete ─────────────────────────────────
+  document.querySelector('.modal-wrap').addEventListener('click', e => {
+    const delCat = e.target.closest('[data-action="delete-category"]');
+    if (delCat) {
+      e.stopPropagation();
+      Model.deleteContentCategory(delCat.dataset.catId);
+      const list = document.getElementById('modal-cat-list');
+      if (list) list.innerHTML = buildCategoryListHTML();
+    }
+  });
+
+  // ─── Drawer — file input change ───────────────────────────────────────────
   document.querySelector('.drawer').addEventListener('change', e => {
     const el     = e.target;
     const taskId = el.dataset.taskId;
+
+    // File attachment
+    if (el.dataset.action === 'attach-file' && taskId) {
+      const file = el.files && el.files[0];
+      if (!file) return;
+      const url = URL.createObjectURL(file);
+      Model.addAttachment(taskId, 'file', file.name, url);
+      View.renderAttachmentList(Model.getTaskById(taskId).attachments || []);
+      refreshBoard();
+      el.value = '';
+      return;
+    }
+
     if (!taskId) return;
 
     if (el.dataset.action === 'status-change') {
@@ -254,6 +405,11 @@ document.addEventListener('DOMContentLoaded', () => {
       Model.updateTask(taskId, { dueDate: el.value });
       refreshBoard();
     }
+    if (el.dataset.action === 'content-tag-change') {
+      Model.updateTask(taskId, { contentTag: el.value });
+      refreshBoard();
+      refreshDrawer(taskId);
+    }
   });
 
   // ─── Drawer — focusout (title + description inline edit) ─────────────────
@@ -274,17 +430,33 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // ─── Drawer — comment submit ──────────────────────────────────────────────
+  // ─── Drawer — submit (comments + internal notes) ──────────────────────────
   document.querySelector('.drawer').addEventListener('submit', e => {
-    if (!e.target.classList.contains('comment-form')) return;
     e.preventDefault();
-    const taskId = e.target.dataset.taskId;
-    const input  = e.target.querySelector('.comment-input');
-    const body   = input.value.trim();
-    if (!body) return;
-    Model.addComment(taskId, 'You', body);
-    input.value = '';
-    View.renderComments(Model.getTaskById(taskId).comments, Model.getTeam());
+
+    // Comment form
+    if (e.target.classList.contains('comment-form')) {
+      const taskId = e.target.dataset.taskId;
+      const input  = e.target.querySelector('.comment-input');
+      const body   = input.value.trim();
+      if (!body) return;
+      Model.addComment(taskId, 'You', body);
+      input.value = '';
+      View.renderComments(Model.getTaskById(taskId).comments, Model.getTeam());
+      return;
+    }
+
+    // Internal note form
+    if (e.target.classList.contains('internal-note-form')) {
+      const taskId = e.target.dataset.taskId;
+      const input  = e.target.querySelector('.comment-input');
+      const body   = input.value.trim();
+      if (!body) return;
+      Model.addInternalNote(taskId, 'You', body);
+      input.value = '';
+      View.renderInternalNoteList(Model.getTaskById(taskId).internalNotes || []);
+      return;
+    }
   });
 
   // ─── Escape — close drawer ────────────────────────────────────────────────
