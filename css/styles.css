@@ -1151,3 +1151,326 @@ h1, h2, h3 {
 .btn-confirm.btn-confirm-danger:hover {
   background: #e05555;
 }
+
+/* ─── Card indicators (attachment/note counts) ───────────────────────────────── */
+.card-indicator {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: var(--text-muted);
+  background: var(--bg-hover);
+  padding: 2px 5px;
+  border-radius: 3px;
+  border: 1px solid var(--border-default);
+}
+
+/* ─── Internal Notes ─────────────────────────────────────────────────────────── */
+.internal-notes-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.internal-badge {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  background: rgba(201, 168, 76, 0.12);
+  color: var(--accent-gold);
+  border: 1px solid rgba(201, 168, 76, 0.25);
+  padding: 2px 7px;
+  border-radius: 10px;
+}
+
+.internal-note-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.internal-note-item {
+  background: rgba(201, 168, 76, 0.05);
+  border: 1px solid rgba(201, 168, 76, 0.18);
+  border-radius: 8px;
+  padding: 10px 12px;
+}
+
+.internal-note-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.internal-note-author {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--accent-gold);
+}
+
+.internal-note-time {
+  font-size: 10px;
+  color: var(--text-muted);
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.internal-note-body {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.btn-add-note {
+  align-self: flex-end;
+  background: transparent;
+  color: var(--accent-gold);
+  border: 1px solid rgba(201, 168, 76, 0.35);
+  border-radius: 6px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 7px 16px;
+  cursor: pointer;
+  transition: all 150ms ease;
+}
+
+.btn-add-note:hover {
+  background: rgba(201, 168, 76, 0.1);
+  border-color: var(--accent-gold);
+}
+
+/* ─── Attachments ────────────────────────────────────────────────────────────── */
+.attachment-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.attachment-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 12px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-strong);
+  border-radius: 6px;
+}
+
+.attachment-icon {
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.attachment-name {
+  flex: 1;
+  font-size: 13px;
+  color: var(--text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.attachment-name a {
+  color: var(--accent-gold);
+  text-decoration: none;
+}
+
+.attachment-name a:hover {
+  text-decoration: underline;
+}
+
+.attachment-meta {
+  font-size: 10px;
+  color: var(--text-muted);
+  font-family: 'JetBrains Mono', monospace;
+  flex-shrink: 0;
+}
+
+.attachment-remove {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--text-muted);
+  font-size: 12px;
+  padding: 2px 5px;
+  border-radius: 3px;
+  transition: all 150ms ease;
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+.attachment-remove:hover {
+  color: var(--priority-high);
+  background: rgba(201, 76, 76, 0.12);
+}
+
+.attachment-add-row {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.attachment-add-input {
+  flex: 1;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-strong);
+  border-radius: 6px;
+  color: var(--text-primary);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px;
+  padding: 6px 10px;
+  outline: none;
+  transition: all 150ms ease;
+  min-width: 0;
+}
+
+.attachment-add-input:focus { border-color: var(--accent-gold); }
+.attachment-add-input::placeholder { color: var(--text-muted); }
+
+.attachment-add-btn {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-strong);
+  border-radius: 6px;
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 500;
+  padding: 6px 12px;
+  cursor: pointer;
+  transition: all 150ms ease;
+  white-space: nowrap;
+  display: inline-block;
+}
+
+.attachment-add-btn:hover {
+  border-color: var(--accent-gold-muted);
+  color: var(--accent-gold);
+}
+
+.attachment-file-label {
+  cursor: pointer;
+}
+
+.attachment-file-input {
+  display: none;
+}
+
+/* ─── Close Project ──────────────────────────────────────────────────────────── */
+.project-section.closed .project-header {
+  opacity: 0.8;
+}
+
+.project-closed-badge {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  background: rgba(90, 122, 90, 0.25);
+  color: var(--priority-low);
+  border: 1px solid rgba(90, 122, 90, 0.4);
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+
+.btn-close-project {
+  font-size: 11px;
+  color: var(--text-muted);
+  background: transparent;
+  border: 1px solid var(--border-default);
+  border-radius: 5px;
+  padding: 3px 8px;
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 500;
+  transition: all 150ms ease;
+  line-height: 1.4;
+}
+
+.btn-close-project:hover {
+  border-color: var(--priority-low);
+  color: var(--priority-low);
+}
+
+.btn-close-project.can-close {
+  border-color: rgba(90, 122, 90, 0.45);
+  color: var(--priority-low);
+}
+
+.btn-reopen-project {
+  font-size: 11px;
+  color: var(--priority-low);
+  background: transparent;
+  border: 1px solid rgba(90, 122, 90, 0.4);
+  border-radius: 5px;
+  padding: 3px 8px;
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 500;
+  transition: all 150ms ease;
+  line-height: 1.4;
+}
+
+.btn-reopen-project:hover {
+  background: rgba(90, 122, 90, 0.15);
+}
+
+/* ─── Category management ────────────────────────────────────────────────────── */
+.drawer-label-action {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: 10px;
+  cursor: pointer;
+  padding: 1px 5px;
+  border-radius: 3px;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
+  transition: all 150ms ease;
+  margin-left: 6px;
+  vertical-align: middle;
+}
+
+.drawer-label-action:hover {
+  color: var(--accent-gold);
+  background: rgba(201, 168, 76, 0.08);
+}
+
+.modal-category-list {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  max-height: 220px;
+  overflow-y: auto;
+}
+
+.modal-cat-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 7px 10px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-default);
+  border-radius: 6px;
+}
+
+.modal-cat-name {
+  font-size: 13px;
+  color: var(--text-primary);
+}
+
+.modal-cat-delete {
+  font-size: 11px;
+  padding: 2px 6px;
+}
+
+.modal-cat-empty {
+  font-size: 13px;
+  color: var(--text-muted);
+  font-style: italic;
+  padding: 8px 0;
+}

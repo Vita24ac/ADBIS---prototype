@@ -23,13 +23,23 @@ const STATUS_LABELS = {
 // ─── Single source of truth ─────────────────────────────────────────────────
 const state = {
 
+  contentCategories: [
+    { id: 'cat-reel',   value: 'reel',          label: 'Reel' },
+    { id: 'cat-ytv',    value: 'youtube_video',  label: 'YT Video' },
+    { id: 'cat-yts',    value: 'youtube_short',  label: 'YT Short' },
+    { id: 'cat-story',  value: 'story',          label: 'Story' },
+    { id: 'cat-static', value: 'static_post',    label: 'Static' },
+    { id: 'cat-blog',   value: 'blog_post',      label: 'Blog' },
+    { id: 'cat-ad',     value: 'ad_creative',    label: 'Ad' }
+  ],
+
   projects: [
-    { id: 'p1', name: 'YouTube Channel',   clientId: 'c1' },
-    { id: 'p2', name: 'Instagram Growth',  clientId: 'c1' },
-    { id: 'p3', name: 'Webinar Series',    clientId: 'c2' },
-    { id: 'p4', name: 'Lead Gen Campaign', clientId: 'c2' },
-    { id: 'p5', name: 'Brand Awareness',   clientId: 'c3' },
-    { id: 'p6', name: 'Donation Drive',    clientId: 'c3' }
+    { id: 'p1', name: 'YouTube Channel',   clientId: 'c1', closed: false },
+    { id: 'p2', name: 'Instagram Growth',  clientId: 'c1', closed: false },
+    { id: 'p3', name: 'Webinar Series',    clientId: 'c2', closed: false },
+    { id: 'p4', name: 'Lead Gen Campaign', clientId: 'c2', closed: false },
+    { id: 'p5', name: 'Brand Awareness',   clientId: 'c3', closed: false },
+    { id: 'p6', name: 'Donation Drive',    clientId: 'c3', closed: false }
   ],
 
   tasks: [
@@ -59,7 +69,9 @@ const state = {
           body: 'Uploaded to shared drive. Folder is called /Loop-Jan-Raw. Let me know if access issues.',
           timestamp: '2026-04-10T11:32:00Z'
         }
-      ]
+      ],
+      internalNotes: [],
+      attachments: []
     },
     {
       id: 'task-02',
@@ -72,7 +84,9 @@ const state = {
       assigneeId: 't3',
       dueDate: '2026-04-22',
       description: 'Write a 800-word blog post introducing new Innovator Circle members to the community values and expectations.',
-      comments: []
+      comments: [],
+      internalNotes: [],
+      attachments: []
     },
     {
       id: 'task-03',
@@ -85,7 +99,9 @@ const state = {
       assigneeId: 't4',
       dueDate: '2026-04-25',
       description: 'Design 3 static ad creatives for Cares Q2 campaign. Sizes: 1080x1080, 1080x1920, 1200x628.',
-      comments: []
+      comments: [],
+      internalNotes: [],
+      attachments: []
     },
     {
       id: 'task-04',
@@ -113,7 +129,9 @@ const state = {
           body: 'Yes, share the doc. Also we need to confirm the studio booking by Friday or we lose the slot.',
           timestamp: '2026-04-09T15:45:00Z'
         }
-      ]
+      ],
+      internalNotes: [],
+      attachments: []
     },
     {
       id: 'task-05',
@@ -126,7 +144,9 @@ const state = {
       assigneeId: 't1',
       dueDate: '2026-04-24',
       description: 'Plan and produce a 5-part Instagram story series featuring IC member success stories. Needs interview questions and visual template.',
-      comments: []
+      comments: [],
+      internalNotes: [],
+      attachments: []
     },
     {
       id: 'task-06',
@@ -139,7 +159,9 @@ const state = {
       assigneeId: 't3',
       dueDate: '2026-04-16',
       description: 'Short-form YouTube video (60s max) explaining Cares\' mission. Needs founder on camera. Script approved. Studio booked for Thursday.',
-      comments: []
+      comments: [],
+      internalNotes: [],
+      attachments: []
     },
     {
       id: 'task-07',
@@ -152,7 +174,9 @@ const state = {
       assigneeId: 't4',
       dueDate: '2026-04-17',
       description: 'Design and shoot product-style static post announcing Loop\'s new class schedule. Brand colors. Gym backdrop.',
-      comments: []
+      comments: [],
+      internalNotes: [],
+      attachments: []
     },
     {
       id: 'task-08',
@@ -165,7 +189,9 @@ const state = {
       assigneeId: 't2',
       dueDate: '2026-04-19',
       description: 'Raw footage is in. Edit a 60s reel from 40min founder interview. Hook: first answer about failure. Use IC brand overlay.',
-      comments: []
+      comments: [],
+      internalNotes: [],
+      attachments: []
     },
     {
       id: 'task-09',
@@ -178,7 +204,9 @@ const state = {
       assigneeId: 't1',
       dueDate: '2026-04-21',
       description: 'SEO-optimised blog post targeting "how to volunteer in Denmark". 600 words. Draft written. Now needs final editing pass.',
-      comments: []
+      comments: [],
+      internalNotes: [],
+      attachments: []
     },
     {
       id: 'task-10',
@@ -191,7 +219,9 @@ const state = {
       assigneeId: 't3',
       dueDate: '2026-04-15',
       description: 'Edit complete. Waiting for client review. Video shows 5am morning routine at Loop gym. Music licensed via Epidemic Sound.',
-      comments: []
+      comments: [],
+      internalNotes: [],
+      attachments: []
     },
     {
       id: 'task-11',
@@ -204,7 +234,9 @@ const state = {
       assigneeId: 't4',
       dueDate: '2026-04-14',
       description: 'Three ad variants for IC Q2 lead gen campaign. All designed. Needs approval from Mathias + IC contact before going live.',
-      comments: []
+      comments: [],
+      internalNotes: [],
+      attachments: []
     },
     {
       id: 'task-12',
@@ -217,7 +249,9 @@ const state = {
       assigneeId: 't2',
       dueDate: '2026-04-16',
       description: 'Story sequence ready for publish. 7 slides. Link sticker to donation page. Schedule for 11am Friday.',
-      comments: []
+      comments: [],
+      internalNotes: [],
+      attachments: []
     },
     {
       id: 'task-13',
@@ -230,7 +264,9 @@ const state = {
       assigneeId: 't1',
       dueDate: '2026-04-15',
       description: 'Member of the month post featuring Charles Alaocha. Photo edited. Caption written. Approved by client. Schedule for Thursday 12pm.',
-      comments: []
+      comments: [],
+      internalNotes: [],
+      attachments: []
     },
     {
       id: 'task-14',
@@ -243,7 +279,9 @@ const state = {
       assigneeId: 't3',
       dueDate: '2026-04-10',
       description: 'Published April 10. Welcome reel for the new IC cohort. Reached 4,200 views in 48h. Client happy.',
-      comments: []
+      comments: [],
+      internalNotes: [],
+      attachments: []
     },
     {
       id: 'task-15',
@@ -256,7 +294,9 @@ const state = {
       assigneeId: 't4',
       dueDate: '2026-04-08',
       description: 'Published April 8. 12-minute documentary-style recap of Cares\' 2025 impact. 1,800 views. Strong watch time (68%).',
-      comments: []
+      comments: [],
+      internalNotes: [],
+      attachments: []
     }
   ],
 
@@ -275,7 +315,6 @@ const state = {
 
   activeClient: null,
   openTaskId: null,
-  // All projects open by default
   openProjects: new Set(['p1', 'p2', 'p3', 'p4', 'p5', 'p6'])
 };
 
@@ -293,7 +332,6 @@ const Model = {
     return state.team;
   },
 
-  // Returns projects filtered by active client
   getProjects() {
     if (!state.activeClient) return state.projects;
     const client = state.clients.find(c => c.slug === state.activeClient);
@@ -337,7 +375,6 @@ const Model = {
     return state.openProjects.has(projectId);
   },
 
-  // Generic task update — pass any fields to patch
   updateTask(id, patch) {
     const task = state.tasks.find(t => t.id === id);
     if (!task) return;
@@ -362,7 +399,83 @@ const Model = {
     });
   },
 
-  // ─── Client CRUD ─────────────────────────────────────────────────────────
+  // ─── Internal Notes ───────────────────────────────────────────────────────
+  addInternalNote(taskId, authorName, body) {
+    const task = state.tasks.find(t => t.id === taskId);
+    if (!task) return;
+    if (!task.internalNotes) task.internalNotes = [];
+    task.internalNotes.push({
+      id: 'note-' + Date.now(),
+      authorName,
+      body: body.trim(),
+      timestamp: new Date().toISOString()
+    });
+  },
+
+  // ─── Attachments ──────────────────────────────────────────────────────────
+  addAttachment(taskId, type, name, url) {
+    const task = state.tasks.find(t => t.id === taskId);
+    if (!task) return null;
+    if (!task.attachments) task.attachments = [];
+    const att = {
+      id: 'att-' + Date.now(),
+      type,   // 'link' | 'file'
+      name,
+      url,
+      addedBy: 'You',
+      timestamp: new Date().toISOString()
+    };
+    task.attachments.push(att);
+    return att.id;
+  },
+
+  removeAttachment(taskId, attachmentId) {
+    const task = state.tasks.find(t => t.id === taskId);
+    if (!task) return;
+    task.attachments = (task.attachments || []).filter(a => a.id !== attachmentId);
+  },
+
+  // ─── Content Categories ───────────────────────────────────────────────────
+  getContentCategories() {
+    return state.contentCategories;
+  },
+
+  addContentCategory(label) {
+    const value = label.toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '');
+    const id = 'cat-' + Date.now();
+    state.contentCategories.push({ id, value, label: label.trim() });
+    return value;
+  },
+
+  deleteContentCategory(id) {
+    state.contentCategories = state.contentCategories.filter(c => c.id !== id);
+  },
+
+  // ─── Close Project ────────────────────────────────────────────────────────
+  canCloseProject(projectId) {
+    const tasks = state.tasks.filter(t => t.projectId === projectId);
+    if (tasks.length === 0) return false;
+    return tasks.every(t => t.status === 'published');
+  },
+
+  closeProject(projectId) {
+    const project = state.projects.find(p => p.id === projectId);
+    if (!project || !this.canCloseProject(projectId)) return false;
+    project.closed = true;
+    return true;
+  },
+
+  reopenProject(projectId) {
+    const project = state.projects.find(p => p.id === projectId);
+    if (project) project.closed = false;
+  },
+
+  isProjectClosed(projectId) {
+    const project = state.projects.find(p => p.id === projectId);
+    return project ? !!project.closed : false;
+  },
+
+  // ─── Client CRUD ──────────────────────────────────────────────────────────
   addClient(name, color) {
     const id   = 'c' + Date.now();
     const slug = name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
@@ -371,14 +484,12 @@ const Model = {
   },
 
   deleteClient(clientId) {
-    // Remove all tasks belonging to this client's projects
     const projectIds = state.projects
       .filter(p => p.clientId === clientId)
       .map(p => p.id);
     state.tasks    = state.tasks.filter(t => !projectIds.includes(t.projectId));
     state.projects = state.projects.filter(p => p.clientId !== clientId);
     state.clients  = state.clients.filter(c => c.id !== clientId);
-    // If the active client was deleted, reset filter
     if (state.activeClient) {
       const still = state.clients.find(c => c.slug === state.activeClient);
       if (!still) state.activeClient = null;
@@ -388,7 +499,7 @@ const Model = {
   // ─── Project CRUD ─────────────────────────────────────────────────────────
   addProject(name, clientId) {
     const id = 'p' + Date.now();
-    state.projects.push({ id, name, clientId });
+    state.projects.push({ id, name, clientId, closed: false });
     state.openProjects.add(id);
     return id;
   },
@@ -404,18 +515,21 @@ const Model = {
     const project = state.projects.find(p => p.id === projectId);
     if (!project) return null;
     const id = 'task-' + Date.now();
+    const defaultCat = state.contentCategories[0];
     const task = {
       id,
       title: 'New Task',
       status: 'draft',
       priority: 'medium',
-      contentTag: 'reel',
+      contentTag: defaultCat ? defaultCat.value : 'reel',
       clientId: project.clientId,
       projectId,
       assigneeId: state.team[0].id,
       dueDate: '',
       description: '',
-      comments: []
+      comments: [],
+      internalNotes: [],
+      attachments: []
     };
     state.tasks.push(task);
     return id;

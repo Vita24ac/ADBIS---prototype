@@ -2,11 +2,11 @@
 
 const View = (() => {
 
-  const $nav    = document.querySelector('.nav');
-  const $ribbon = document.querySelector('.ribbon');
-  const $board  = document.querySelector('.board');
-  const $drawer = document.querySelector('.drawer');
-  const $overlay = document.querySelector('.overlay');
+  const $nav       = document.querySelector('.nav');
+  const $ribbon    = document.querySelector('.ribbon');
+  const $board     = document.querySelector('.board');
+  const $drawer    = document.querySelector('.drawer');
+  const $overlay   = document.querySelector('.overlay');
   const $modalWrap = document.querySelector('.modal-wrap');
 
   // ─── Helpers ───────────────────────────────────────────────────────────────
@@ -33,11 +33,9 @@ const View = (() => {
   }
 
   function contentTagLabel(tag) {
-    const map = {
-      reel: 'Reel', youtube_video: 'YT Video', youtube_short: 'YT Short',
-      story: 'Story', static_post: 'Static', blog_post: 'Blog', ad_creative: 'Ad'
-    };
-    return map[tag] || tag;
+    const cats = Model.getContentCategories();
+    const found = cats.find(c => c.value === tag);
+    return found ? found.label : tag;
   }
 
   // ─── renderNav ─────────────────────────────────────────────────────────────
@@ -82,7 +80,6 @@ const View = (() => {
       $board.appendChild(renderProjectSection(project, client, projectTasks, statuses, statusLabels, isOpen));
     });
 
-    // Add Project button at the bottom
     const addBtn = document.createElement('button');
     addBtn.className = 'board-add-project';
     addBtn.dataset.action = 'add-project';
@@ -93,11 +90,25 @@ const View = (() => {
   // ─── renderProjectSection ──────────────────────────────────────────────────
   function renderProjectSection(project, client, tasks, statuses, statusLabels, isOpen) {
     const section = document.createElement('div');
-    section.className = `project-section ${isOpen ? 'open' : ''}`;
+    section.className = `project-section ${isOpen ? 'open' : ''} ${project.closed ? 'closed' : ''}`;
     section.dataset.projectId = project.id;
 
     const clientColor = client ? client.color : '#a9a9a9';
     const clientName  = client ? client.name  : '';
+    const isClosed    = !!project.closed;
+    const canClose    = !isClosed && Model.canCloseProject(project.id);
+
+    const closedBadge = isClosed
+      ? `<span class="project-closed-badge">✓ Closed</span>`
+      : '';
+
+    const closeBtn = isClosed
+      ? `<button class="btn-reopen-project" data-action="reopen-project" data-project-id="${project.id}" title="Reopen project">Reopen</button>`
+      : `<button class="btn-close-project ${canClose ? 'can-close' : ''}" data-action="close-project" data-project-id="${project.id}" title="${canClose ? 'Close project' : 'All tasks must be published to close'}">✓ Close</button>`;
+
+    const addTaskBtn = isClosed
+      ? ''
+      : `<button class="btn-icon" data-action="add-task" data-project-id="${project.id}" title="Add task">+ Task</button>`;
 
     const header = document.createElement('div');
     header.className = 'project-header';
@@ -109,10 +120,12 @@ const View = (() => {
         <span class="project-client-dot" style="background:${clientColor}"></span>
         <span class="project-name">${project.name}</span>
         <span class="project-client-label">${clientName}</span>
+        ${closedBadge}
       </div>
       <div class="project-header-right">
         <span class="project-task-count">${tasks.length} task${tasks.length !== 1 ? 's' : ''}</span>
-        <button class="btn-icon" data-action="add-task" data-project-id="${project.id}" title="Add task">+ Task</button>
+        ${closeBtn}
+        ${addTaskBtn}
         <button class="btn-icon btn-danger" data-action="delete-project" data-project-id="${project.id}" title="Delete project">🗑</button>
       </div>
     `;
@@ -166,6 +179,13 @@ const View = (() => {
     const clientBg   = client ? client.color : '#555';
     const clientName = client ? client.name  : '—';
     const initials   = assignee ? assignee.initials : '?';
+    const attCount   = (task.attachments || []).length;
+    const noteCount  = (task.internalNotes || []).length;
+
+    const indicators = [
+      attCount  > 0 ? `<span class="card-indicator" title="${attCount} attachment${attCount !== 1 ? 's' : ''}">📎 ${attCount}</span>` : '',
+      noteCount > 0 ? `<span class="card-indicator" title="${noteCount} internal note${noteCount !== 1 ? 's' : ''}">🔒 ${noteCount}</span>` : ''
+    ].filter(Boolean).join('');
 
     card.innerHTML = `
       <div class="card-top-row">
@@ -175,6 +195,7 @@ const View = (() => {
       <div class="card-title">${task.title}</div>
       <div class="card-meta">
         <span class="card-content-tag tag">${contentTagLabel(task.contentTag)}</span>
+        ${indicators}
       </div>
       <div class="card-footer">
         <div class="card-assignee ${assigneeClass(task.assigneeId)}">${initials}</div>
@@ -198,6 +219,9 @@ const View = (() => {
     ).join('');
     const assigneeOptions = team.map(m =>
       `<option value="${m.id}" ${task.assigneeId === m.id ? 'selected' : ''}>${m.name}</option>`
+    ).join('');
+    const categoryOptions = Model.getContentCategories().map(c =>
+      `<option value="${c.value}" ${task.contentTag === c.value ? 'selected' : ''}>${c.label}</option>`
     ).join('');
 
     $drawer.innerHTML = `
@@ -254,6 +278,16 @@ const View = (() => {
         </div>
 
         <div class="drawer-field">
+          <label class="drawer-label">
+            Category
+            <button class="drawer-label-action" data-action="manage-categories" type="button">⚙ Manage</button>
+          </label>
+          <select class="drawer-select" data-action="content-tag-change" data-task-id="${task.id}">
+            ${categoryOptions}
+          </select>
+        </div>
+
+        <div class="drawer-field">
           <label class="drawer-label">Description</label>
           <textarea
             class="drawer-textarea"
@@ -265,9 +299,39 @@ const View = (() => {
 
         <div class="drawer-divider"></div>
 
+        <!-- Attachments -->
+        <div class="drawer-section-title">Attachments</div>
+        <div class="attachment-list" id="attachment-list"></div>
+        <div class="attachment-add-row">
+          <input type="text" class="attachment-add-input" id="att-name-input" placeholder="Label (optional)">
+          <input type="text" class="attachment-add-input" id="att-url-input" placeholder="https://…">
+          <button class="attachment-add-btn" data-action="add-link" data-task-id="${task.id}" type="button">+ Link</button>
+        </div>
+        <div class="attachment-add-row" style="margin-top:6px;">
+          <label class="attachment-file-label">
+            <input type="file" class="attachment-file-input" data-action="attach-file" data-task-id="${task.id}">
+            <span class="attachment-add-btn">📎 Attach File</span>
+          </label>
+        </div>
+
+        <div class="drawer-divider"></div>
+
+        <!-- Internal Notes -->
+        <div class="internal-notes-header">
+          <span class="drawer-section-title" style="margin-bottom:0;">Internal Notes</span>
+          <span class="internal-badge">🔒 Team Only</span>
+        </div>
+        <div class="internal-note-list" id="internal-note-list"></div>
+        <form class="internal-note-form" data-task-id="${task.id}">
+          <textarea class="comment-input" placeholder="Add an internal note… (only visible to the team)" rows="2"></textarea>
+          <button type="submit" class="btn-add-note">Add Note</button>
+        </form>
+
+        <div class="drawer-divider"></div>
+
+        <!-- Comments -->
         <div class="drawer-section-title">Comments</div>
         <div class="comment-list" id="comment-list"></div>
-
         <form class="comment-form" data-task-id="${task.id}">
           <textarea class="comment-input" placeholder="Add a comment…" rows="3"></textarea>
           <button type="submit" class="comment-submit">Post Comment</button>
@@ -281,7 +345,56 @@ const View = (() => {
       </div>
     `;
 
+    renderAttachmentList(task.attachments || []);
+    renderInternalNoteList(task.internalNotes || []);
     renderComments(task.comments, team);
+  }
+
+  // ─── renderAttachmentList ─────────────────────────────────────────────────
+  function renderAttachmentList(attachments) {
+    const $list = document.getElementById('attachment-list');
+    if (!$list) return;
+
+    if (!attachments || attachments.length === 0) {
+      $list.innerHTML = '<p class="comment-empty">No attachments yet.</p>';
+      return;
+    }
+
+    $list.innerHTML = attachments.map(a => {
+      const icon = a.type === 'file' ? '📄' : '🔗';
+      const nameEl = a.url
+        ? `<a href="${a.url}" target="_blank" rel="noopener">${a.name}</a>`
+        : `<span>${a.name}</span>`;
+      return `
+        <div class="attachment-item">
+          <span class="attachment-icon">${icon}</span>
+          <span class="attachment-name">${nameEl}</span>
+          <span class="attachment-meta">${a.addedBy}</span>
+          <button class="attachment-remove" data-action="remove-attachment" data-att-id="${a.id}" title="Remove">✕</button>
+        </div>
+      `;
+    }).join('');
+  }
+
+  // ─── renderInternalNoteList ───────────────────────────────────────────────
+  function renderInternalNoteList(notes) {
+    const $list = document.getElementById('internal-note-list');
+    if (!$list) return;
+
+    if (!notes || notes.length === 0) {
+      $list.innerHTML = '<p class="comment-empty">No internal notes yet.</p>';
+      return;
+    }
+
+    $list.innerHTML = notes.map(n => `
+      <div class="internal-note-item">
+        <div class="internal-note-meta">
+          <span class="internal-note-author">${n.authorName}</span>
+          <span class="internal-note-time">${formatTimestamp(n.timestamp)}</span>
+        </div>
+        <div class="internal-note-body">${n.body}</div>
+      </div>
+    `).join('');
   }
 
   // ─── renderComments ────────────────────────────────────────────────────────
@@ -374,6 +487,8 @@ const View = (() => {
     openDrawer,
     closeDrawer,
     renderComments,
+    renderAttachmentList,
+    renderInternalNoteList,
     toggleProjectSection,
     showModal,
     hideModal
