@@ -39,7 +39,9 @@ const state = {
     { id: 'p3', name: 'Webinar Series',    clientId: 'c2', closed: false },
     { id: 'p4', name: 'Lead Gen Campaign', clientId: 'c2', closed: false },
     { id: 'p5', name: 'Brand Awareness',   clientId: 'c3', closed: false },
-    { id: 'p6', name: 'Donation Drive',    clientId: 'c3', closed: false }
+    { id: 'p6', name: 'Donation Drive',    clientId: 'c3', closed: false },
+    { id: 'p7', name: 'Personal Brand Strategy', clientId: 'c4', closed: false },
+    { id: 'p8', name: 'Social Media Launch',     clientId: 'c4', closed: false }
   ],
 
   tasks: [
@@ -297,13 +299,134 @@ const state = {
       comments: [],
       internalNotes: [],
       attachments: []
+    },
+    {
+      id: 'task-16',
+      title: 'Brand Identity Brief',
+      status: 'scoping',
+      priority: 'high',
+      contentTag: 'blog_post',
+      clientId: 'c4',
+      projectId: 'p7',
+      assigneeId: 't1',
+      dueDate: '2026-05-05',
+      description: 'Define brand voice, visual identity, and positioning for Marzia Prine personal brand. Covers tone of voice, audience personas, and key differentiators.',
+      comments: [],
+      internalNotes: [
+        {
+          id: 'note-16a',
+          authorName: 'Mathias',
+          body: 'Marzia mentioned she wants to position herself between "corporate strategist" and "creative entrepreneur" — keep this tension in the brief.',
+          timestamp: '2026-04-22T09:30:00Z'
+        }
+      ],
+      attachments: []
+    },
+    {
+      id: 'task-17',
+      title: 'LinkedIn Profile Rewrite',
+      status: 'ready_for_edit',
+      priority: 'medium',
+      contentTag: 'static_post',
+      clientId: 'c4',
+      projectId: 'p7',
+      assigneeId: 't3',
+      dueDate: '2026-05-08',
+      description: 'Full rewrite of LinkedIn profile — headline, about, and experience sections. Copy drafted, now needs final editing and formatting pass.',
+      comments: [
+        {
+          id: 'cmt-17a',
+          authorId: 't3',
+          authorName: 'Victor',
+          body: 'Draft is ready for your review, Marzia. I\'ve focused the headline on your consulting niche. Let me know if the tone feels right.',
+          timestamp: '2026-04-24T14:10:00Z'
+        }
+      ],
+      internalNotes: [],
+      attachments: []
+    },
+    {
+      id: 'task-18',
+      title: 'Thought Leadership Reel #1',
+      status: 'needs_review',
+      priority: 'high',
+      contentTag: 'reel',
+      clientId: 'c4',
+      projectId: 'p7',
+      assigneeId: 't2',
+      dueDate: '2026-04-30',
+      description: 'First reel in the thought leadership series. Topic: "Why I left corporate to go solo". Edit complete — awaiting Marzia\'s review before export.',
+      comments: [
+        {
+          id: 'cmt-18a',
+          authorId: 't2',
+          authorName: 'Christian',
+          body: 'Marzia — the edit is ready. Please pay special attention to the hook at 0:03 and let us know if the tone feels authentic to you.',
+          timestamp: '2026-04-25T10:00:00Z'
+        }
+      ],
+      internalNotes: [
+        {
+          id: 'note-18a',
+          authorName: 'Victor',
+          body: 'She mentioned wanting a warmer colour grade in our last call — flag this for the export pass once she approves the cut.',
+          timestamp: '2026-04-25T11:15:00Z'
+        }
+      ],
+      attachments: []
+    },
+    {
+      id: 'task-19',
+      title: 'Instagram Content Calendar — May',
+      status: 'draft',
+      priority: 'medium',
+      contentTag: 'static_post',
+      clientId: 'c4',
+      projectId: 'p8',
+      assigneeId: 't4',
+      dueDate: '2026-05-01',
+      description: 'Plan and schedule 12 posts for May Instagram launch. Mix of reels, carousels, and static posts aligned with brand brief.',
+      comments: [],
+      internalNotes: [],
+      attachments: []
+    },
+    {
+      id: 'task-20',
+      title: 'Launch Announcement Story Series',
+      status: 'ready_to_shoot',
+      priority: 'high',
+      contentTag: 'story',
+      clientId: 'c4',
+      projectId: 'p8',
+      assigneeId: 't1',
+      dueDate: '2026-05-03',
+      description: '5-slide Instagram story series announcing Marzia\'s brand launch. Script and visual template approved. Shoot scheduled for May 2nd.',
+      comments: [],
+      internalNotes: [],
+      attachments: []
+    },
+    {
+      id: 'task-21',
+      title: 'YouTube Channel Intro Video',
+      status: 'draft',
+      priority: 'low',
+      contentTag: 'youtube_video',
+      clientId: 'c4',
+      projectId: 'p8',
+      assigneeId: 't3',
+      dueDate: '2026-05-15',
+      description: '60–90 second channel trailer for Marzia\'s YouTube presence. Script not yet started. Will follow brand identity brief once finalised.',
+      comments: [],
+      internalNotes: [],
+      attachments: []
     }
   ],
 
   clients: [
     { id: 'c1', name: 'Loop Fitness',     slug: 'loop-fitness',     color: '#4CAF50' },
     { id: 'c2', name: 'Innovator Circle', slug: 'innovator-circle', color: '#9C6ADE' },
-    { id: 'c3', name: 'Cares',            slug: 'cares',            color: '#E8734A' }
+    { id: 'c3', name: 'Cares',            slug: 'cares',            color: '#E8734A' },
+    { id: 'c4', name: 'Marzia Prince',    slug: 'marzia-prince',    color: '#7B68EE' }
   ],
 
   team: [
@@ -315,7 +438,7 @@ const state = {
 
   activeClient: null,
   openTaskId: null,
-  openProjects: new Set(['p1', 'p2', 'p3', 'p4', 'p5', 'p6'])
+  openProjects: new Set(['p1', 'p2', 'p3', 'p4', 'p5', 'p6', 'p7', 'p8'])
 };
 
 // ─── Priority sort order ─────────────────────────────────────────────────────

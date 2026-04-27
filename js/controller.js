@@ -2,14 +2,29 @@
 
 document.addEventListener('DOMContentLoaded', () => {
 
-  // ─── Initial render ───────────────────────────────────────────────────────
-  View.renderNav();
-  View.renderClientRibbon(Model.getClients(), Model.getActiveClientSlug());
-  View.renderBoard(Model.getFilteredTasks(), Model.getProjects(), STATUSES, STATUS_LABELS);
-
   // ─── Helpers ─────────────────────────────────────────────────────────────
+  function getProjectMeta() {
+    const meta = {};
+    Model.getProjects().forEach(p => {
+      meta[p.id] = {
+        isOpen:   Model.isProjectOpen(p.id),
+        canClose: Model.canCloseProject(p.id)
+      };
+    });
+    return meta;
+  }
+
   function refreshBoard() {
-    View.renderBoard(Model.getFilteredTasks(), Model.getProjects(), STATUSES, STATUS_LABELS);
+    View.renderBoard(
+      Model.getFilteredTasks(),
+      Model.getProjects(),
+      STATUSES,
+      STATUS_LABELS,
+      Model.getClients(),
+      Model.getTeam(),
+      Model.getContentCategories(),
+      getProjectMeta()
+    );
   }
 
   function refreshRibbon() {
@@ -19,7 +34,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function refreshDrawer(taskId) {
     const task = Model.getTaskById(taskId);
     if (!task) return;
-    View.renderDrawer(task, Model.getClients(), Model.getTeam());
+    View.renderDrawer(task, Model.getClients(), Model.getTeam(), Model.getContentCategories());
     View.openDrawer();
   }
 
@@ -36,15 +51,20 @@ document.addEventListener('DOMContentLoaded', () => {
     `).join('');
   }
 
+  // ─── Initial render ───────────────────────────────────────────────────────
+  View.renderNav();
+  View.renderClientRibbon(Model.getClients(), Model.getActiveClientSlug());
+  refreshBoard();
+
   // ─── Ribbon ───────────────────────────────────────────────────────────────
   document.querySelector('.ribbon').addEventListener('click', e => {
     const delBtn = e.target.closest('[data-action="delete-client"]');
     if (delBtn) {
       e.stopPropagation();
-      const clientId = delBtn.dataset.clientId;
-      const client   = Model.getClients().find(c => c.id === clientId);
-      const projCount = Model.getProjects().filter(p => p.clientId === clientId).length;
-      const taskCount = Model.getFilteredTasks().filter(t => t.clientId === clientId).length;
+      const clientId   = delBtn.dataset.clientId;
+      const client     = Model.getClients().find(c => c.id === clientId);
+      const projCount  = Model.getProjects().filter(p => p.clientId === clientId).length;
+      const taskCount  = Model.getFilteredTasks().filter(t => t.clientId === clientId).length;
       View.showModal({
         title: 'Delete Client',
         bodyHTML: `
@@ -154,8 +174,8 @@ document.addEventListener('DOMContentLoaded', () => {
       const projectId = closeProjectBtn.dataset.projectId;
       const project   = Model.getProjects().find(p => p.id === projectId);
       if (!Model.canCloseProject(projectId)) {
-        const tasks      = Model.getFilteredTasks().filter(t => t.projectId === projectId);
-        const remaining  = tasks.filter(t => t.status !== 'published').length;
+        const tasks     = Model.getFilteredTasks().filter(t => t.projectId === projectId);
+        const remaining = tasks.filter(t => t.status !== 'published').length;
         View.showModal({
           title: 'Cannot Close Project',
           bodyHTML: `
@@ -273,7 +293,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // ─── Drawer — clicks ─────────────────────────────────────────────────────
   document.querySelector('.drawer').addEventListener('click', e => {
-    // Close button
     if (e.target.dataset.action === 'close') {
       Model.setOpenTask(null);
       View.closeDrawer();
@@ -302,10 +321,10 @@ document.addEventListener('DOMContentLoaded', () => {
     // Add link attachment
     const addLinkBtn = e.target.closest('[data-action="add-link"]');
     if (addLinkBtn) {
-      const taskId   = addLinkBtn.dataset.taskId;
+      const taskId    = addLinkBtn.dataset.taskId;
       const nameInput = document.getElementById('att-name-input');
       const urlInput  = document.getElementById('att-url-input');
-      const url  = urlInput ? urlInput.value.trim() : '';
+      const url  = urlInput  ? urlInput.value.trim()  : '';
       const name = nameInput ? nameInput.value.trim() : '';
       if (!url) return;
       Model.addAttachment(taskId, 'link', name || url, url);
@@ -434,7 +453,6 @@ document.addEventListener('DOMContentLoaded', () => {
   document.querySelector('.drawer').addEventListener('submit', e => {
     e.preventDefault();
 
-    // Comment form
     if (e.target.classList.contains('comment-form')) {
       const taskId = e.target.dataset.taskId;
       const input  = e.target.querySelector('.comment-input');
@@ -446,7 +464,6 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    // Internal note form
     if (e.target.classList.contains('internal-note-form')) {
       const taskId = e.target.dataset.taskId;
       const input  = e.target.querySelector('.comment-input');
