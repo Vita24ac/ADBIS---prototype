@@ -32,8 +32,9 @@ const View = (() => {
       d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
   }
 
-  function contentTagLabel(tag, categories) {
-    const found = categories.find(c => c.value === tag);
+  function contentTagLabel(tag) {
+    const cats = Model.getContentCategories();
+    const found = cats.find(c => c.value === tag);
     return found ? found.label : tag;
   }
 
@@ -43,7 +44,7 @@ const View = (() => {
       <span class="nav-logo">House <span class="logo-of">of</span> Leap</span>
       <div class="nav-right">
         <span class="nav-gear" title="Settings">⚙</span>
-        <a class="nav-avatar assignee-t3" href="client/index.html" target="_blank" title="Open Client Portal — Marzia Prine" style="text-decoration:none;">VP</a>
+        <div class="nav-avatar assignee-t3" title="Victor Prager">VP</div>
       </div>
     `;
   }
@@ -69,14 +70,14 @@ const View = (() => {
   }
 
   // ─── renderBoard ───────────────────────────────────────────────────────────
-  function renderBoard(tasks, projects, statuses, statusLabels, clients, team, categories, projectMeta) {
+  function renderBoard(tasks, projects, statuses, statusLabels) {
     $board.innerHTML = '';
 
     projects.forEach(project => {
       const projectTasks = tasks.filter(t => t.projectId === project.id);
-      const meta   = projectMeta[project.id] || { isOpen: false, canClose: false };
-      const client = clients.find(c => c.id === project.clientId);
-      $board.appendChild(renderProjectSection(project, client, projectTasks, statuses, statusLabels, meta.isOpen, meta.canClose, clients, team, categories));
+      const isOpen = Model.isProjectOpen(project.id);
+      const client = Model.getClients().find(c => c.id === project.clientId);
+      $board.appendChild(renderProjectSection(project, client, projectTasks, statuses, statusLabels, isOpen));
     });
 
     const addBtn = document.createElement('button');
@@ -87,7 +88,7 @@ const View = (() => {
   }
 
   // ─── renderProjectSection ──────────────────────────────────────────────────
-  function renderProjectSection(project, client, tasks, statuses, statusLabels, isOpen, canClose, clients, team, categories) {
+  function renderProjectSection(project, client, tasks, statuses, statusLabels, isOpen) {
     const section = document.createElement('div');
     section.className = `project-section ${isOpen ? 'open' : ''} ${project.closed ? 'closed' : ''}`;
     section.dataset.projectId = project.id;
@@ -95,6 +96,7 @@ const View = (() => {
     const clientColor = client ? client.color : '#a9a9a9';
     const clientName  = client ? client.name  : '';
     const isClosed    = !!project.closed;
+    const canClose    = !isClosed && Model.canCloseProject(project.id);
 
     const closedBadge = isClosed
       ? `<span class="project-closed-badge">✓ Closed</span>`
@@ -132,7 +134,7 @@ const View = (() => {
     kanban.className = `project-kanban ${isOpen ? '' : 'collapsed'}`;
 
     statuses.forEach(status => {
-      kanban.appendChild(renderColumn(status, statusLabels[status], tasks.filter(t => t.status === status), clients, team, categories));
+      kanban.appendChild(renderColumn(status, statusLabels[status], tasks.filter(t => t.status === status)));
     });
 
     section.appendChild(header);
@@ -141,7 +143,7 @@ const View = (() => {
   }
 
   // ─── renderColumn ──────────────────────────────────────────────────────────
-  function renderColumn(status, label, tasks, clients, team, categories) {
+  function renderColumn(status, label, tasks) {
     const col = document.createElement('div');
     col.className = 'column';
     col.dataset.status = status;
@@ -156,9 +158,9 @@ const View = (() => {
     const cards = document.createElement('div');
     cards.className = 'column-cards';
     tasks.forEach(task => {
-      const client   = clients.find(c => c.id === task.clientId);
-      const assignee = team.find(m => m.id === task.assigneeId);
-      cards.appendChild(renderCard(task, client, assignee, categories));
+      const client   = Model.getClients().find(c => c.id === task.clientId);
+      const assignee = Model.getTeam().find(m => m.id === task.assigneeId);
+      cards.appendChild(renderCard(task, client, assignee));
     });
 
     col.appendChild(header);
@@ -167,7 +169,7 @@ const View = (() => {
   }
 
   // ─── renderCard ────────────────────────────────────────────────────────────
-  function renderCard(task, client, assignee, categories) {
+  function renderCard(task, client, assignee) {
     const card = document.createElement('div');
     card.className = `card priority-${task.priority}`;
     card.dataset.taskId = task.id;
@@ -192,7 +194,7 @@ const View = (() => {
       </div>
       <div class="card-title">${task.title}</div>
       <div class="card-meta">
-        <span class="card-content-tag tag">${contentTagLabel(task.contentTag, categories)}</span>
+        <span class="card-content-tag tag">${contentTagLabel(task.contentTag)}</span>
         ${indicators}
       </div>
       <div class="card-footer">
@@ -204,7 +206,7 @@ const View = (() => {
   }
 
   // ─── renderDrawer ──────────────────────────────────────────────────────────
-  function renderDrawer(task, clients, team, categories) {
+  function renderDrawer(task, clients, team) {
     const client     = clients.find(c => c.id === task.clientId);
     const clientBg   = client ? client.color : '#555';
     const clientName = client ? client.name  : '—';
@@ -218,7 +220,7 @@ const View = (() => {
     const assigneeOptions = team.map(m =>
       `<option value="${m.id}" ${task.assigneeId === m.id ? 'selected' : ''}>${m.name}</option>`
     ).join('');
-    const categoryOptions = categories.map(c =>
+    const categoryOptions = Model.getContentCategories().map(c =>
       `<option value="${c.value}" ${task.contentTag === c.value ? 'selected' : ''}>${c.label}</option>`
     ).join('');
 
@@ -227,7 +229,7 @@ const View = (() => {
         <div style="flex:1;min-width:0;">
           <div class="drawer-header-meta">
             <span class="card-client-tag tag" style="background:${clientBg};font-size:10px;padding:2px 8px;border-radius:4px;color:#111;">${clientName}</span>
-            <span class="card-content-tag tag">${contentTagLabel(task.contentTag, categories)}</span>
+            <span class="card-content-tag tag">${contentTagLabel(task.contentTag)}</span>
           </div>
           <input
             class="drawer-title-input"
@@ -359,7 +361,7 @@ const View = (() => {
     }
 
     $list.innerHTML = attachments.map(a => {
-      const icon   = a.type === 'file' ? '📄' : '🔗';
+      const icon = a.type === 'file' ? '📄' : '🔗';
       const nameEl = a.url
         ? `<a href="${a.url}" target="_blank" rel="noopener">${a.name}</a>`
         : `<span>${a.name}</span>`;
