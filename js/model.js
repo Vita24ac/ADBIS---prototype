@@ -34,60 +34,12 @@ const state = {
   ],
 
   projects: [
-    { id: 'p1', name: 'YouTube Channel',   clientId: 'c1', closed: false }
   ],
 
   tasks: [
-    {
-      id: 'task-01',
-      title: 'Loop Fitness — YouTube Channel Strategy Video',
-      status: 'scoping',
-      priority: 'high',
-      contentTag: 'youtube_video',
-      clientId: 'c1',
-      projectId: 'p1',
-      assigneeId: 't2',
-      dueDate: '2026-04-20',
-      description: 'Full production YouTube video covering Loop Fitness\'s new training methodology. 8-12 minutes. Script, shoot, and edit.',
-      comments: [
-        {
-          id: 'cmt-04a',
-          authorId: 't3',
-          authorName: 'Victor',
-          body: 'I\'ve drafted the script outline — three acts: Problem, Method, Results. Want to review it before we book the studio?',
-          timestamp: '2026-04-09T14:20:00Z'
-        },
-        {
-          id: 'cmt-04b',
-          authorId: 't2',
-          authorName: 'Christian',
-          body: 'Yes, share the doc. Also we need to confirm the studio booking by Friday or we lose the slot.',
-          timestamp: '2026-04-09T15:45:00Z'
-        }
-      ],
-      internalNotes: [],
-      attachments: []
-    },
-    {
-      id: 'task-02',
-      title: 'Loop Fitness — YouTube Short: Morning Routine',
-      status: 'needs_review',
-      priority: 'medium',
-      contentTag: 'youtube_short',
-      clientId: 'c1',
-      projectId: 'p1',
-      assigneeId: 't3',
-      dueDate: '2026-04-15',
-      description: 'Edit complete. Waiting for client review. Video shows 5am morning routine at Loop gym. Music licensed via Epidemic Sound.',
-      comments: [],
-      internalNotes: [],
-      attachments: []
-    }
   ],
 
   clients: [
-    { id: 'c1', name: 'Loop Fitness',     slug: 'loop-fitness',     color: '#4CAF50' },
-    { id: 'c2', name: 'Innovator Circle', slug: 'innovator-circle', color: '#9C6ADE' }
   ],
 
   team: [
@@ -99,7 +51,7 @@ const state = {
 
   activeClient: null,
   openTaskId: null,
-  openProjects: new Set(['p1', 'p2', 'p3', 'p4', 'p5', 'p6'])
+  openProjects: new Set()
 };
 
 // ─── Priority sort order ─────────────────────────────────────────────────────
