@@ -279,7 +279,7 @@ const View = (() => {
 
         <div class="drawer-field">
           <label class="drawer-label">
-            Category
+            ContentItem
             <button class="drawer-label-action" data-action="manage-categories" type="button">⚙ Manage</button>
           </label>
           <select class="drawer-select" data-action="content-tag-change" data-task-id="${task.id}">
