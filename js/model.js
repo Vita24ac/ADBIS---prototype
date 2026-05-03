@@ -23,7 +23,15 @@ const STATUS_LABELS = {
 // ─── Single source of truth ─────────────────────────────────────────────────
 const state = {
 
-  contentCategories: [],
+   contentCategories: [
+    { id: 'cat-reel',   value: 'reel',          label: 'Reel' },
+    { id: 'cat-ytv',    value: 'youtube_video',  label: 'YT Video' },
+    { id: 'cat-yts',    value: 'youtube_short',  label: 'YT Short' },
+    { id: 'cat-story',  value: 'story',          label: 'Story' },
+    { id: 'cat-static', value: 'static_post',    label: 'Static' },
+    { id: 'cat-blog',   value: 'blog_post',      label: 'Blog' },
+    { id: 'cat-ad',     value: 'ad_creative',    label: 'Ad' }
+  ],
 
   projects: [],
 
