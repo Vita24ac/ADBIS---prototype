@@ -5,11 +5,11 @@ document.addEventListener('DOMContentLoaded', () => {
   // ─── Initial render ───────────────────────────────────────────────────────
   View.renderNav();
   View.renderClientRibbon(Model.getClients(), Model.getActiveClientSlug());
-  View.renderBoard(Model.getFilteredTasks(), Model.getProjects(), STATUSES, STATUS_LABELS);
+  View.renderBoard(Model.getFilteredTasks(), Model.getProjects(), STATUSES, STATUS_LABELS, Model.getClients(), Model.getOpenProjects(), Model.getTeam(), Model.getContentCategories());
 
   // ─── Helpers ─────────────────────────────────────────────────────────────
   function refreshBoard() {
-    View.renderBoard(Model.getFilteredTasks(), Model.getProjects(), STATUSES, STATUS_LABELS);
+    View.renderBoard(Model.getFilteredTasks(), Model.getProjects(), STATUSES, STATUS_LABELS, Model.getClients(), Model.getOpenProjects(), Model.getTeam(), Model.getContentCategories());
   }
 
   function refreshRibbon() {
@@ -19,7 +19,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function refreshDrawer(taskId) {
     const task = Model.getTaskById(taskId);
     if (!task) return;
-    View.renderDrawer(task, Model.getClients(), Model.getTeam());
+    View.renderDrawer(task, Model.getClients(), Model.getTeam(), Model.getContentCategories(), STATUSES, STATUS_LABELS);
     View.openDrawer();
   }
 
@@ -43,8 +43,8 @@ document.addEventListener('DOMContentLoaded', () => {
       e.stopPropagation();
       const clientId = delBtn.dataset.clientId;
       const client   = Model.getClients().find(c => c.id === clientId);
-      const projCount = Model.getProjects().filter(p => p.clientId === clientId).length;
-      const taskCount = Model.getFilteredTasks().filter(t => t.clientId === clientId).length;
+      const projCount = Model.getAllProjects().filter(p => p.clientId === clientId).length;
+      const taskCount = Model.getAllTasks().filter(t => t.clientId === clientId).length;
       View.showModal({
         title: 'Delete Client',
         bodyHTML: `

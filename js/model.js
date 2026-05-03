@@ -22,7 +22,6 @@ const STATUS_LABELS = {
 
 // ─── Single source of truth ─────────────────────────────────────────────────
 const state = {
-
    contentCategories: [
     { id: 'cat-reel',   value: 'reel',          label: 'Reel' },
     { id: 'cat-ytv',    value: 'youtube_video',  label: 'YT Video' },
@@ -39,10 +38,6 @@ const state = {
 
   clients: [],
 
-  tasks: [],
-
-  clients: [],
-
   team: [
     { id: 't1', name: 'Mathias',  initials: 'MK' },
     { id: 't2', name: 'Christian', initials: 'CM' },
@@ -52,7 +47,6 @@ const state = {
 
   activeClient: null,
   openTaskId: null,
-  openProjects: new Set(['p1', 'p2', 'p3', 'p4', 'p5', 'p6']),
   openProjects: new Set()
 };
 
@@ -84,7 +78,6 @@ const Model = {
       if (client) tasks = tasks.filter(t => t.clientId === client.id);
     }
     return [...tasks].sort((a, b) => {
-      if (a.status !== b.status) return 0;
       return PRIORITY_ORDER[a.priority] - PRIORITY_ORDER[b.priority];
     });
   },
@@ -278,11 +271,23 @@ const Model = {
     if (state.openTaskId === taskId) state.openTaskId = null;
   },
 
+  getAllProjects() {
+    return state.projects;
+  },
+
+  getAllTasks() {
+    return state.tasks;
+  },
+
   getActiveClientSlug() {
     return state.activeClient;
   },
 
   getOpenTaskId() {
     return state.openTaskId;
+  },
+
+  getOpenProjects() {
+    return new Set(state.openProjects);
   }
 };
