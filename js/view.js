@@ -197,10 +197,7 @@ const View = (() => {
       </div>
       <div class="card-footer">
         <div class="card-assignee ${assigneeClass(task.assigneeId)}">${initials}</div>
-        <div class="card-due-row">
-          <span class="card-due${overdueCls}">${formatDate(task.dueDate)}</span>
-          <button class="card-reminder-btn" data-action="send-reminder" data-task-id="${task.id}" title="Send reminder">🔔</button>
-        </div>
+        <span class="card-due${overdueCls}">${formatDate(task.dueDate)}</span>
       </div>
     `;
     return card;
@@ -464,12 +461,6 @@ const View = (() => {
       $modalWrap.querySelectorAll('.modal-input, .modal-select, .modal-color-input').forEach(el => {
         if (el.name) formData[el.name] = el.value;
       });
-      $modalWrap.querySelectorAll('input[type="checkbox"].modal-checkbox').forEach(el => {
-        if (el.name) {
-          if (!formData[el.name]) formData[el.name] = [];
-          if (el.checked) formData[el.name].push(el.value);
-        }
-      });
       hideModal();
       onConfirm(formData);
     });
@@ -482,19 +473,6 @@ const View = (() => {
   function hideModal() {
     $modalWrap.classList.remove('visible');
     $modalWrap.innerHTML = '';
-  }
-
-  // ─── Toast ─────────────────────────────────────────────────────────────────
-  function showToast(message) {
-    const toast = document.createElement('div');
-    toast.className = 'toast';
-    toast.textContent = message;
-    document.body.appendChild(toast);
-    requestAnimationFrame(() => toast.classList.add('toast-visible'));
-    setTimeout(() => {
-      toast.classList.remove('toast-visible');
-      toast.addEventListener('transitionend', () => toast.remove(), { once: true });
-    }, 3000);
   }
 
   return {
@@ -511,7 +489,6 @@ const View = (() => {
     renderInternalNoteList,
     toggleProjectSection,
     showModal,
-    hideModal,
-    showToast
+    hideModal
   };
 })();

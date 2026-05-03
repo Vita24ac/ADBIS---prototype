@@ -275,61 +275,6 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    // Send reminder
-    const reminderBtn = e.target.closest('[data-action="send-reminder"]');
-    if (reminderBtn) {
-      e.stopPropagation();
-      const taskId = reminderBtn.dataset.taskId;
-      const task   = Model.getTaskById(taskId);
-      const client = Model.getClients().find(c => c.id === task.clientId);
-      const team   = Model.getTeam();
-      const dueLabel = task.dueDate
-        ? new Date(task.dueDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' })
-        : 'no due date';
-      const teamCheckboxes = team.map(m => `
-        <label class="reminder-checkbox-row">
-          <input type="checkbox" class="modal-checkbox" name="recipients" value="${m.name}" checked>
-          <span class="reminder-checkbox-name">${m.name}</span>
-          <span class="reminder-team-badge">team</span>
-        </label>
-      `).join('');
-      const clientCheckbox = client ? `
-        <label class="reminder-checkbox-row">
-          <input type="checkbox" class="modal-checkbox" name="recipients" value="${client.name}" checked>
-          <span class="reminder-checkbox-name">${client.name}</span>
-          <span class="reminder-client-badge">client</span>
-        </label>
-      ` : '';
-      View.showModal({
-        title: 'Send Reminder',
-        bodyHTML: `
-          <p class="modal-message">
-            Reminder for <strong>${task.title}</strong> — due <strong>${dueLabel}</strong>
-          </p>
-          <div class="modal-field">
-            <label class="modal-label">Send to</label>
-            <div class="reminder-checkbox-list">
-              ${teamCheckboxes}
-              ${clientCheckbox}
-            </div>
-          </div>
-          <div class="modal-field">
-            <label class="modal-label">Message</label>
-            <textarea class="modal-input modal-textarea" name="message" rows="3" placeholder="Add a reminder message…"></textarea>
-          </div>
-        `,
-        confirmLabel: 'Send Reminder',
-        danger: false,
-        onConfirm: ({ recipients, message }) => {
-          const to = (recipients || []);
-          if (to.length === 0) return;
-          const names = to.length <= 2 ? to.join(' & ') : `${to.slice(0, -1).join(', ')} & ${to[to.length - 1]}`;
-          View.showToast(`Reminder sent to ${names}`);
-        }
-      });
-      return;
-    }
-
     // Open task card
     const card = e.target.closest('.card');
     if (card) {
