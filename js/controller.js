@@ -5,11 +5,11 @@ document.addEventListener('DOMContentLoaded', () => {
   // ─── Initial render ───────────────────────────────────────────────────────
   View.renderNav();
   View.renderClientRibbon(Model.getClients(), Model.getActiveClientSlug());
-  View.renderBoard(Model.getFilteredTasks(), Model.getProjects(), STATUSES, STATUS_LABELS, Model.getClients(), Model.getOpenProjects(), Model.getTeam(), Model.getContentCategories());
+  View.renderBoard(Model.getFilteredTasks(), Model.getProjects(), STATUSES, STATUS_LABELS, Model.getClients(), Model.getOpenProjects(), Model.getTeam(), Model.getContentCategories(), Model.canCloseProject.bind(Model));
 
   // ─── Helpers ─────────────────────────────────────────────────────────────
   function refreshBoard() {
-    View.renderBoard(Model.getFilteredTasks(), Model.getProjects(), STATUSES, STATUS_LABELS, Model.getClients(), Model.getOpenProjects(), Model.getTeam(), Model.getContentCategories());
+    View.renderBoard(Model.getFilteredTasks(), Model.getProjects(), STATUSES, STATUS_LABELS, Model.getClients(), Model.getOpenProjects(), Model.getTeam(), Model.getContentCategories(), Model.canCloseProject.bind(Model));
   }
 
   function refreshRibbon() {
@@ -112,12 +112,10 @@ document.addEventListener('DOMContentLoaded', () => {
       if (!taskId) return;
       if (!Model.isProjectOpen(projectId)) {
         Model.toggleProject(projectId);
-        View.toggleProjectSection(projectId, true);
       }
       refreshBoard();
       Model.setOpenTask(taskId);
       refreshDrawer(taskId);
-      View.openDrawer();
       return;
     }
 
@@ -127,7 +125,7 @@ document.addEventListener('DOMContentLoaded', () => {
       e.stopPropagation();
       const projectId = delProjectBtn.dataset.projectId;
       const project   = Model.getProjects().find(p => p.id === projectId);
-      const taskCount = Model.getFilteredTasks().filter(t => t.projectId === projectId).length;
+      const taskCount = Model.getAllTasks().filter(t => t.projectId === projectId).length;
       View.showModal({
         title: 'Delete Project',
         bodyHTML: `

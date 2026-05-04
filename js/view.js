@@ -69,14 +69,14 @@ const View = (() => {
   }
 
   // ─── renderBoard ───────────────────────────────────────────────────────────
-  function renderBoard(tasks, projects, statuses, statusLabels, clients, openProjects, team, categories) {
+  function renderBoard(tasks, projects, statuses, statusLabels, clients, openProjects, team, categories, canCloseProject) {
     $board.innerHTML = '';
 
     projects.forEach(project => {
       const projectTasks = tasks.filter(t => t.projectId === project.id);
       const isOpen = openProjects.has(project.id);
       const client = clients.find(c => c.id === project.clientId);
-      $board.appendChild(renderProjectSection(project, client, projectTasks, statuses, statusLabels, isOpen, clients, team, categories));
+      $board.appendChild(renderProjectSection(project, client, projectTasks, statuses, statusLabels, isOpen, clients, team, categories, canCloseProject));
     });
 
     const addBtn = document.createElement('button');
@@ -87,7 +87,7 @@ const View = (() => {
   }
 
   // ─── renderProjectSection ──────────────────────────────────────────────────
-  function renderProjectSection(project, client, tasks, statuses, statusLabels, isOpen, clients, team, categories) {
+  function renderProjectSection(project, client, tasks, statuses, statusLabels, isOpen, clients, team, categories, canCloseProject) {
     const section = document.createElement('div');
     section.className = `project-section ${isOpen ? 'open' : ''} ${project.closed ? 'closed' : ''}`;
     section.dataset.projectId = project.id;
@@ -95,8 +95,7 @@ const View = (() => {
     const clientColor = client ? client.color : '#a9a9a9';
     const clientName  = client ? client.name  : '';
     const isClosed    = !!project.closed;
-    const canClose    = !isClosed && tasks.length > 0 && tasks.every(t => t.status === 'published');
-
+    const canClose    = !isClosed && canCloseProject(project.id);
     const closedBadge = isClosed
       ? `<span class="project-closed-badge">✓ Closed</span>`
       : '';
@@ -480,7 +479,6 @@ const View = (() => {
     renderNav,
     renderClientRibbon,
     renderBoard,
-    renderColumn,
     renderDrawer,
     openDrawer,
     closeDrawer,
